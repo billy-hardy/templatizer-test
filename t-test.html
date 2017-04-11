@@ -1,0 +1,70 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<dom-module id="t-test">
+    <template>
+        <style></style>
+        <content></content>
+        <div id="root"></div>
+    </template>
+    <script>
+        Polymer({
+            is: "t-test",
+
+            behaviors: [Polymer.Templatizer],
+
+            properties: {
+                item: {
+                    type: Object,
+                    value: function() {
+                        return {
+                            fName: "Billy",
+                            age: 24,
+                        };
+                    }
+                },
+                metadata: {
+                    type: Array,
+                    value: function() {
+                        return [
+                            {type: "string", prop: "fName"},
+                            {type: "number", prop: "age"}
+                        ];
+                    }
+                },
+                as: {
+                    type: String,
+                    value: "item"
+                },
+                indexAs: {
+                    type: String,
+                    value: "index"
+                }
+            },
+
+            observers: [
+                "_getRenderers(metadata, metadata.*)",
+                "_assignModels(item, item.*, _renderers, _renderers.*, as, indexAs)"
+            ],
+
+            _getRenderers() {
+                this._renderers = this.metadata.map(m => {
+                    let template = this.queryEffectiveChildren('template[for="'+m.type+'"]');
+                    this.templatize(template);
+                    return this.stamp(null);
+                });
+            },
+
+            _assignModels() {
+                this._renderers.forEach((renderer, index) => {
+                    renderer[this.as] = this.item[this.metadata[index].prop];
+                    renderer[this.indexAs] = index;
+                    Polymer.dom(this.$.root).appendChild(renderer.root);
+                });
+            },
+
+            ready: function() {
+
+            }
+        });
+    </script>
+</dom-module>
