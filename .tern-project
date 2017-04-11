@@ -1,0 +1,9 @@
+{
+    "libs": [
+        "browser"
+    ],
+    "loadEagerly": [
+        "./bower_components/vaadin-grid/*.html",
+        "./bower_components/vaadin-grid/*.js"
+    ]
+}
