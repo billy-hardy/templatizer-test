@@ -1,0 +1,90 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<dom-module id="list-test">
+    <template>
+        <style></style>
+        <content></content>
+        <div id="root"></div>
+    </template>
+    <script>
+        Polymer({
+            is: "list-test",
+
+            behaviors: [Polymer.Templatizer],
+
+            properties: {
+                items: {
+                    type: Array,
+                    value: function() {
+                        return [
+                            {
+                                fName: "Billy",
+                                lName: "Hardy",
+                                age: 24
+                            },
+                            {
+                                fName: "Hirsh",
+                                lName: "Parikshak",
+                                age: 29
+                            },
+                            {
+                                fName: "Jon",
+                                lName: "Smithers",
+                                age: 27
+                            }
+                        ];
+                    }
+                },
+                metadata: {
+                    type: Array,
+                    value: function() {
+                        return [
+                            {type: "string", prop: "fName"},
+                            {type: "string", prop: "lName"},
+                            {type: "number", prop: "age"}
+                        ];
+                    }
+                },
+                as: {
+                    type: String,
+                    value: "item"
+                },
+                indexAs: {
+                    type: String,
+                    value: "index"
+                }
+            },
+
+            observers: [
+                "_getRenderers(metadata, metadata.*, items.length)",
+                "_assignModels(items, items.*, _renderers, _renderers.*, as, indexAs)"
+            ],
+
+            _getRenderers() {
+                if(this.$.root.childElementCount === this.items.length*this.metadata.length) {
+                    return;
+                }
+                this.$.root.innerHTML = "";
+                this._renderers = this.items.map(item => {
+                    return this.metadata.map(m => {
+                        let template = this.queryEffectiveChildren('template[for="'+m.type+'"]');
+                        this.templatize(template);
+                        let renderer = this.stamp(null);
+                        Polymer.dom(this.$.root).appendChild(renderer.root);
+                        return renderer;
+                    });
+                });
+            },
+
+            _assignModels(items) {
+                this._renderers.forEach((row, i) => {
+                    let item = items[i];
+                    row.forEach((renderer, j) => {
+                        renderer[this.as] = item[this.metadata[j].prop];
+                        renderer[this.indexAs] = i;
+                    });
+                });
+            },
+        });
+    </script>
+</dom-module>
